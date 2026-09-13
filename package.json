@@ -1,0 +1,30 @@
+{
+  "name": "pialno-3d",
+  "version": "1.0.0",
+  "description": "Grand piano 3D interaktif di browser — Three.js + Web Audio API",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/abri45773-art/Pialno-3d.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/abri45773-art/Pialno-3d/issues"
+  },
+  "homepage": "https://github.com/abri45773-art/Pialno-3d#readme",
+  "dependencies": {
+    "three": "^0.160.1"
+  },
+  "devDependencies": {
+    "playwright": "^1.48.0",
+    "vite": "^5.4.21"
+  },
+  "private": true,
+  "type": "module"
+}

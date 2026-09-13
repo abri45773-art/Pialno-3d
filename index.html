@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Piano 3D — Grand Piano Interaktif</title>
+    <meta name="description" content="Grand piano 3D interaktif: mainkan dengan mouse, keyboard komputer, atau MIDI." />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎹</text></svg>" />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <canvas id="scene"></canvas>
+
+    <!-- Layar mulai -->
+    <div id="splash" class="splash">
+      <div class="splash-card">
+        <div class="splash-emoji">🎹</div>
+        <h1>Piano 3D</h1>
+        <p>Grand piano interaktif. Mainkan dengan <b>mouse</b>, <b>keyboard</b>, atau <b>MIDI controller</b>.</p>
+        <button id="startBtn" class="btn-primary">Mulai Bermain</button>
+        <div class="splash-hint">Suara dibuat langsung di browser (Web Audio) — tanpa unduhan sampel.</div>
+      </div>
+    </div>
+
+    <!-- Header -->
+    <header class="topbar">
+      <div class="brand"><span>🎹</span> Piano&nbsp;3D</div>
+      <div class="now-playing" id="nowPlaying">—</div>
+      <button id="panelToggle" class="icon-btn" title="Tampilkan / sembunyikan panel">☰</button>
+    </header>
+
+    <!-- Panel kontrol -->
+    <aside class="panel" id="panel">
+      <section>
+        <h2>Suara</h2>
+        <label class="row">
+          <span>Volume</span>
+          <input id="volume" type="range" min="0" max="100" value="75" />
+        </label>
+        <label class="row">
+          <span>Reverb</span>
+          <input id="reverb" type="range" min="0" max="100" value="34" />
+        </label>
+        <label class="row">
+          <span>Kecerahan</span>
+          <input id="tone" type="range" min="0" max="100" value="55" />
+        </label>
+        <label class="check">
+          <input id="sustain" type="checkbox" />
+          <span>Pedal sustain <kbd>Space</kbd></span>
+        </label>
+      </section>
+
+      <section>
+        <h2>Lagu Demo</h2>
+        <select id="songSelect"></select>
+        <div class="btn-row">
+          <button id="playBtn" class="btn">▶ Putar</button>
+          <button id="stopBtn" class="btn" disabled>■ Stop</button>
+        </div>
+        <label class="row">
+          <span>Tempo</span>
+          <input id="tempo" type="range" min="50" max="160" value="100" />
+          <output id="tempoOut">100%</output>
+        </label>
+        <label class="check"><input id="loop" type="checkbox" /><span>Ulangi terus</span></label>
+      </section>
+
+      <section>
+        <h2>Rekaman</h2>
+        <div class="btn-row">
+          <button id="recBtn" class="btn">● Rekam</button>
+          <button id="playRecBtn" class="btn" disabled>▶ Putar</button>
+          <button id="clearRecBtn" class="btn" disabled>✕ Hapus</button>
+        </div>
+        <div class="hint" id="recInfo">Belum ada rekaman.</div>
+      </section>
+
+      <section>
+        <h2>Tampilan</h2>
+        <div class="btn-row">
+          <button class="btn" data-view="player">Pemain</button>
+          <button class="btn" data-view="cinematic">Sinematik</button>
+          <button class="btn" data-view="top">Atas</button>
+        </div>
+        <label class="check"><input id="noteNames" type="checkbox" checked /><span>Nama not di tuts</span></label>
+        <label class="check"><input id="keyLabels" type="checkbox" /><span>Huruf keyboard</span></label>
+        <label class="check"><input id="autoRotate" type="checkbox" /><span>Putar otomatis</span></label>
+        <label class="check"><input id="fallingNotes" type="checkbox" checked /><span>Falling notes</span></label>
+      </section>
+
+      <section>
+        <h2>Bantuan</h2>
+        <div class="hint">
+          <p><b>Keyboard:</b> baris <kbd>Z X C V B N M</kbd> = oktaf bawah, <kbd>Q W E R T Y U</kbd> = oktaf atas. Baris angka &amp; <kbd>S D G H J</kbd> = tuts hitam.</p>
+          <p><b>Oktaf:</b> <kbd>←</kbd> <kbd>→</kbd> &nbsp;•&nbsp; <b>Sustain:</b> <kbd>Space</kbd></p>
+          <p><b>Kamera:</b> drag kanan / dua jari untuk memutar, scroll untuk zoom.</p>
+          <p id="midiStatus"><b>MIDI:</b> mendeteksi…</p>
+        </div>
+      </section>
+    </aside>
+
+    <div class="octave-pill" id="octavePill">Oktaf: C4</div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
