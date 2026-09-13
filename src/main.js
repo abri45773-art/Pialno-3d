@@ -197,6 +197,11 @@ function pressNote(midi, velocity = 0.9) {
     });
   }
 
+  if (app.mode === 'free') {
+    const binding = CODE_LABEL[MIDI_TO_CODE[midi]];
+    dom.freeInfo.textContent = `Nada ${noteName(midi)}${binding ? ` · tombol ${binding}` : ''} · Shift = pedal`;
+  }
+
   const s = app.session;
   if (s && app.mode === 'game' && !s.auto) {
     const ev = s.press(midi, songTime(), velocity);
@@ -896,6 +901,13 @@ function bindKeys() {
       if (e.code === 'ArrowDown') {
         stage.zoom(1.06);
         e.preventDefault();
+        return;
+      }
+      if ((e.code === 'Enter' || e.code === 'Space') && app.mode === 'songs') {
+        e.preventDefault();
+        app.auto = dom.chkAuto.checked;
+        app.metronome = dom.chkMetronome.checked;
+        startGame({ song: app.songId, auto: app.auto });
         return;
       }
       const midi = KEY_CODES[e.code];
