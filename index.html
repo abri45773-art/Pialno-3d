@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#07070f" />
+    <meta
+      name="description"
+      content="Piano 3D — game ritme piano tiga dimensi. Tangkap nada yang jatuh, mainkan melodi, dan raih peringkat S."
+    />
+    <title>Piano 3D — Game Piano Ritme</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/src/style.css" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23101024'/%3E%3Crect x='5' y='8' width='4' height='16' rx='1' fill='%23fff'/%3E%3Crect x='10' y='8' width='4' height='16' rx='1' fill='%23fff'/%3E%3Crect x='15' y='8' width='4' height='16' rx='1' fill='%23fff'/%3E%3Crect x='20' y='8' width='4' height='16' rx='1' fill='%23fff'/%3E%3Crect x='7.5' y='8' width='3' height='10' rx='1' fill='%2322d3ee'/%3E%3Crect x='12.5' y='8' width='3' height='10' rx='1' fill='%2322d3ee'/%3E%3Crect x='18' y='8' width='3' height='10' rx='1' fill='%2322d3ee'/%3E%3C/svg%3E"
+    />
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="stage"></canvas>
+
+      <!-- ===== Lapisan UI ===== -->
+      <div id="ui">
+        <!-- HUD permainan -->
+        <header id="hud" class="hidden">
+          <div class="hud-left">
+            <div class="hud-song" id="hudSong">—</div>
+            <div class="hud-meta" id="hudMeta">—</div>
+            <div class="bar hp"><i id="hpFill"></i></div>
+          </div>
+
+          <div class="hud-center">
+            <div class="score" id="hudScore">0</div>
+            <div class="combo hidden" id="hudCombo"><b>0</b><span>KOMBO</span></div>
+          </div>
+
+          <div class="hud-right">
+            <div class="stat"><span>AKURASI</span><b id="hudAcc">100.0%</b></div>
+            <div class="stat"><span>MULTIPLIER</span><b id="hudMult">x1.0</b></div>
+            <button class="icon-btn" id="btnPause" title="Jeda (Esc)">II</button>
+          </div>
+
+          <div class="progress"><i id="progressFill"></i></div>
+        </header>
+
+        <div id="judgment" class="hidden"></div>
+        <div id="countdown" class="hidden"></div>
+
+        <!-- Toolbar mode bebas -->
+        <div id="freebar" class="hidden">
+          <button class="chip" id="btnFreeBack">← Menu</button>
+          <button class="chip" id="btnNames">Nama Nada: ON</button>
+          <button class="chip" id="btnPedal">Pedal: OFF</button>
+          <button class="chip" id="btnRec">● Rekam</button>
+          <button class="chip" id="btnPlayRec" disabled>▶ Putar</button>
+          <button class="chip" id="btnDemo">♪ Demo Lagu</button>
+          <div class="chip info" id="freeInfo">Tekan tuts atau ketik A–' untuk bermain</div>
+        </div>
+
+        <!-- Menu utama -->
+        <section class="screen" id="screenMenu">
+          <div class="panel panel-hero">
+            <div class="logo">
+              <span class="logo-3d">3D</span>
+              <h1>PIANO</h1>
+            </div>
+            <p class="tagline">
+              Game ritme piano tiga dimensi — tangkap nada yang jatuh di atas tuts, jaga kombo, dan raih
+              peringkat <b>S</b>.
+            </p>
+            <div class="menu-buttons">
+              <button class="btn btn-primary" id="btnPlay">🎮 Main Game</button>
+              <button class="btn" id="btnFree">🎹 Main Bebas</button>
+              <button class="btn" id="btnHelp">❔ Cara Main</button>
+              <button class="btn" id="btnSettings">⚙️ Pengaturan</button>
+            </div>
+            <div class="hero-foot">
+              <span id="heroStatus">Siap dimainkan</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Pilih lagu -->
+        <section class="screen hidden" id="screenSongs">
+          <div class="panel panel-wide">
+            <div class="panel-head">
+              <button class="btn btn-ghost" id="btnSongsBack">← Kembali</button>
+              <h2>Pilih Lagu</h2>
+              <div class="diff-picker" id="diffPicker">
+                <button data-diff="mudah">Mudah</button>
+                <button data-diff="sedang" class="active">Sedang</button>
+                <button data-diff="sulit">Sulit</button>
+              </div>
+            </div>
+            <div class="song-grid" id="songGrid"></div>
+            <div class="panel-foot">
+              <div class="speed-row">
+                <label for="speedRange">Kecepatan nada</label>
+                <input type="range" id="speedRange" min="60" max="180" value="100" />
+                <output id="speedOut">1.00×</output>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="chkAuto" />
+                <span>Mode Auto (demo)</span>
+              </label>
+              <label class="switch">
+                <input type="checkbox" id="chkMetronome" />
+                <span>Metronom</span>
+              </label>
+              <button class="btn btn-primary" id="btnStart">Mulai ▶</button>
+              <span class="muted hint-enter">Enter = mulai</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Cara main -->
+        <section class="screen hidden" id="screenHelp">
+          <div class="panel panel-wide">
+            <div class="panel-head">
+              <button class="btn btn-ghost" id="btnHelpBack">← Kembali</button>
+              <h2>Cara Main</h2>
+              <span></span>
+            </div>
+            <div class="help-body">
+              <div class="help-col">
+                <h3>🎯 Tujuan</h3>
+                <p>
+                  Balok nada jatuh dari atas menuju tuts piano. Tekan tuts yang benar <b>tepat saat</b> balok
+                  menyentuh garis cahaya di permukaan tuts.
+                </p>
+                <ul class="tight">
+                  <li><b class="j-perfect">SEMPURNA</b> — timing sangat tepat (±55 ms)</li>
+                  <li><b class="j-great">HEBAT</b> — sedikit meleset (±100 ms)</li>
+                  <li><b class="j-good">BAGUS</b> — masih kena (±150 ms)</li>
+                  <li><b class="j-miss">MELESET</b> — nada terlewat, kombo hilang &amp; HP berkurang</li>
+                </ul>
+                <p>
+                  Nada panjang harus <b>ditahan</b> sampai ujung balok melewati garis. Lepaskan terlalu cepat
+                  dan kombo kamu putus.
+                </p>
+              </div>
+              <div class="help-col">
+                <h3>⌨️ Peta Tombol</h3>
+                <p>Tuts putih &amp; hitam dipetakan ke keyboard seperti piano sungguhan:</p>
+                <div class="keymap" id="keymap"></div>
+                <ul class="tight">
+                  <li><b>Shift</b> / <b>M</b> — pedal sustain (mode bebas)</li>
+                  <li><b>Esc</b> atau <b>P</b> — jeda</li>
+                  <li><b>←/→</b> — putar kamera, <b>↑/↓</b> — zoom</li>
+                  <li>Di layar sentuh: <b>ketuk tutsnya langsung</b></li>
+                </ul>
+              </div>
+              <div class="help-col">
+                <h3>🏆 Skor &amp; Peringkat</h3>
+                <p>
+                  Kombo tinggi menaikkan multiplier sampai <b>x2.0</b>. HP habis = permainan berakhir.
+                </p>
+                <div class="ranks">
+                  <span class="rank r-s">S</span><span class="rank r-a">A</span><span class="rank r-b">B</span
+                  ><span class="rank r-c">C</span><span class="rank r-d">D</span><span class="rank r-e">E</span>
+                </div>
+                <p class="muted">Akurasi ≥ 95% untuk S, ≥ 90% A, ≥ 80% B, ≥ 70% C, ≥ 60% D.</p>
+                <h3>💡 Tips</h3>
+                <p>
+                  Mulai dari tingkat <b>Mudah</b> (hanya melodi), naikkan kecepatan nada bila sudah terbiasa,
+                  lalu coba <b>Sulit</b> yang menambahkan arpeggio &amp; akor pengiring.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Pengaturan -->
+        <section class="screen hidden" id="screenSettings">
+          <div class="panel">
+            <div class="panel-head">
+              <button class="btn btn-ghost" id="btnSetBack">← Kembali</button>
+              <h2>Pengaturan</h2>
+              <span></span>
+            </div>
+            <div class="settings">
+              <label class="row">
+                <span>Volume utama</span>
+                <input type="range" id="setVolume" min="0" max="100" value="80" />
+                <output id="outVolume">80%</output>
+              </label>
+              <label class="row">
+                <span>Gema (reverb)</span>
+                <input type="range" id="setReverb" min="0" max="100" value="35" />
+                <output id="outReverb">35%</output>
+              </label>
+              <label class="row">
+                <span>Kecerahan nada</span>
+                <input type="range" id="setTone" min="0" max="100" value="60" />
+                <output id="outTone">60%</output>
+              </label>
+              <label class="row">
+                <span>Kecepatan nada</span>
+                <input type="range" id="setSpeed" min="60" max="180" value="100" />
+                <output id="outSpeed">1.00×</output>
+              </label>
+              <label class="row">
+                <span>Kualitas grafis</span>
+                <select id="setQuality">
+                  <option value="high">Tinggi (bloom + bayangan)</option>
+                  <option value="medium">Sedang (bayangan)</option>
+                  <option value="low">Rendah (cepat)</option>
+                </select>
+                <output></output>
+              </label>
+              <label class="row">
+                <span>Nama nada di tuts</span>
+                <select id="setNames">
+                  <option value="on">Tampilkan</option>
+                  <option value="off">Sembunyikan</option>
+                </select>
+                <output></output>
+              </label>
+              <label class="row">
+                <span>Nada panjang (tahan)</span>
+                <select id="setHolds">
+                  <option value="on">Aktif</option>
+                  <option value="off">Semua jadi ketukan</option>
+                </select>
+                <output></output>
+              </label>
+              <label class="row">
+                <span>Suara UI</span>
+                <select id="setUiSound">
+                  <option value="on">Aktif</option>
+                  <option value="off">Mati</option>
+                </select>
+                <output></output>
+              </label>
+              <div class="row buttons">
+                <button class="btn" id="btnTestSound">🔊 Tes Suara</button>
+                <button class="btn btn-danger" id="btnResetData">Hapus Rekor</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Jeda -->
+        <section class="screen hidden" id="screenPause">
+          <div class="panel panel-narrow">
+            <h2>Jeda</h2>
+            <p class="muted" id="pauseInfo">—</p>
+            <div class="menu-buttons">
+              <button class="btn btn-primary" id="btnResume">▶ Lanjutkan</button>
+              <button class="btn" id="btnRestart">↻ Ulangi</button>
+              <button class="btn" id="btnChangeSong">♫ Ganti Lagu</button>
+              <button class="btn btn-ghost" id="btnQuit">🏠 Menu Utama</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Hasil -->
+        <section class="screen hidden" id="screenResult">
+          <div class="panel panel-narrow">
+            <div class="result-head">
+              <div class="rank-big" id="resRank">S</div>
+              <div>
+                <h2 id="resTitle">Lagu Selesai!</h2>
+                <p class="muted" id="resSong">—</p>
+              </div>
+            </div>
+            <div class="res-score" id="resScore">0</div>
+            <div class="res-grid" id="resGrid"></div>
+            <div class="res-bar"><i id="resAccFill"></i></div>
+            <p class="muted center" id="resBest">—</p>
+            <div class="menu-buttons">
+              <button class="btn btn-primary" id="btnRetry">↻ Main Lagi</button>
+              <button class="btn" id="btnResSongs">♫ Ganti Lagu</button>
+              <button class="btn btn-ghost" id="btnResMenu">🏠 Menu</button>
+            </div>
+          </div>
+        </section>
+
+        <div id="toast" class="hidden"></div>
+        <div id="loader">
+          <div class="spinner"></div>
+          <p>Menyiapkan panggung 3D…</p>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
